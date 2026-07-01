@@ -1,0 +1,134 @@
+name: AdIntelligence
+displayName: "Ad Intelligence"
+description: "Analyzes ad presence across Google and Facebook, detects agency involvement, and identifies website technologies for any domain."
+version: "1.0.0"
+category: "analytics"
+
+# Entry point for the skill
+entrypoint:
+  type: python
+  module: core.api
+  function: analyze_domain
+
+# Runtime configuration
+runtime:
+  type: python
+  version: "3.10+"
+  framework: streamlit
+  dependencies:
+    - streamlit>=1.28.0
+    - playwright==1.49.0
+    - requests>=2.31.0
+    - tldextract>=5.0.0
+    - Pillow>=10.0.0
+    - webtech>=1.3.0
+
+# Input schema - what the agent accepts
+inputs:
+  - name: domain
+    type: string
+    description: "Website URL or domain to analyze (e.g., nike.com, amazon.com)"
+    required: true
+    placeholder: "example.com"
+  
+  - name: max_google_ads
+    type: integer
+    description: "Maximum number of Google ads to retrieve"
+    required: false
+    default: 50
+    min: 5
+    max: 200
+  
+  - name: max_facebook_ads
+    type: integer
+    description: "Maximum number of Facebook ads to retrieve"
+    required: false
+    default: 30
+    min: 5
+    max: 100
+  
+  - name: scan_tech_stack
+    type: boolean
+    description: "Scan and detect website technologies"
+    required: false
+    default: true
+
+# Output schema - what the skill returns
+outputs:
+  - name: domain
+    type: string
+    description: "Extracted domain"
+  
+  - name: brand_name
+    type: string
+    description: "Brand name detected from domain"
+  
+  - name: google_ads
+    type: object
+    description: "Google ads data with creatives and metadata"
+  
+  - name: facebook_ads
+    type: object
+    description: "Facebook ads data with screenshots and carousel info"
+  
+  - name: technologies
+    type: object
+    description: "Website tech stack categorized by type"
+  
+  - name: agency_detection
+    type: object
+    description: "Agency vs. in-house analysis for Google and Facebook"
+
+# Capabilities this skill provides
+capabilities:
+  - id: scrape_google_ads
+    name: "Scrape Google Ads"
+    description: "Query Google Ads Transparency Center for brand ads"
+  
+  - id: scrape_facebook_ads
+    name: "Scrape Facebook Ads"
+    description: "Query Facebook Ad Library for active ads"
+  
+  - id: detect_agency
+    name: "Detect Agency Management"
+    description: "Identify if ads are managed by agency or in-house"
+  
+  - id: scan_tech_stack
+    name: "Scan Website Technologies"
+    description: "Detect CMS, ad platforms, analytics, and other technologies"
+  
+  - id: extract_creatives
+    name: "Extract Ad Creatives"
+    description: "Download and process ad images and screenshots"
+
+# Permissions required
+permissions:
+  - external:google.ads.transparency
+  - external:facebook.ad.library
+  - external:website.crawl
+
+# Contexts where this skill is useful
+triggers:
+  - context: "competitive_analysis"
+    keywords: ["ads", "advertising", "Google Ads", "Facebook ads"]
+  
+  - context: "market_research"
+    keywords: ["brand", "campaign", "marketing", "ad strategy"]
+  
+  - context: "technology_stack"
+    keywords: ["tech stack", "technologies", "analytics", "CMS"]
+
+# Configuration for Copilot workspace integration
+workspace:
+  enabled: true
+  displayMode: "card"
+  shortName: "AdIntel"
+  icon: "📊"
+  color: "#1a73e8"
+
+# Rate limiting and performance
+performance:
+  timeout: 300
+  retries: 2
+  cache: true
+  cacheTTL: 3600
